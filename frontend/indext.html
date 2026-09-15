@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIZQEEL MULTI_TUTOR</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+```
+<header class="topbar">
+    <div class="logo">🎓 HIZQEEL</div>
+    <div class="badge">MULTI_TUTOR</div>
+</header>
+
+<main class="container">
+
+    <section class="hero">
+        <div class="hero-icon">🎓</div>
+
+        <h1>HIZQEEL MULTI_TUTOR</h1>
+
+        <p>
+            Your AI-powered study assistant for WAEC, NECO and JAMB.
+        </p>
+
+        <div class="status">
+            🟢 AI Tutor Ready
+        </div>
+    </section>
+
+    <section class="controls">
+
+        <div class="control-card">
+            <span>📚</span>
+            <label>Subject</label>
+            <select id="subject">
+                <option>Mathematics</option>
+                <option>English Language</option>
+                <option>Physics</option>
+                <option>Chemistry</option>
+                <option>Biology</option>
+                <option>Economics</option>
+                <option>Government</option>
+                <option>Literature in English</option>
+            </select>
+        </div>
+
+        <div class="control-card">
+            <span>🎯</span>
+            <label>Level</label>
+            <select id="level">
+                <option>WAEC</option>
+                <option>JAMB</option>
+                <option>NECO</option>
+                <option>SS1</option>
+                <option>SS2</option>
+                <option>SS3</option>
+            </select>
+        </div>
+
+        <div class="control-card">
+            <span>🌍</span>
+            <label>Language</label>
+            <select id="language">
+                <option>English</option>
+                <option>Simple English</option>
+            </select>
+        </div>
+
+    </section>
+
+    <section class="stats">
+
+        <div class="stat">
+            <strong>⭐ 0</strong>
+            <span>XP</span>
+        </div>
+
+        <div class="stat">
+            <strong>✅ 0</strong>
+            <span>Correct</span>
+        </div>
+
+        <div class="stat">
+            <strong>📊 0%</strong>
+            <span>Accuracy</span>
+        </div>
+
+    </section>
+
+    <section class="tutor">
+
+        <div class="section-title">
+            <span>🤖</span>
+            <h2>AI Tutor</h2>
+        </div>
+
+        <p id="selection">
+            Mathematics • WAEC • English
+        </p>
+
+        <textarea
+            id="question"
+            placeholder="Ask HIZQEEL anything about your subject..."
+        ></textarea>
+
+        <button onclick="askTutor()">
+            🚀 Ask HIZQEEL
+        </button>
+
+        <div id="response" class="response">
+            Your AI tutor response will appear here.
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    🎓 HIZQEEL MULTI_TUTOR • Built for Nigerian Students
+    <br>
+    Study smart. Practise more. Succeed.
+</footer>
+
+<script src="script.js"></script>
+```
+
+</body>
+</html>

@@ -1,8 +1,8 @@
 import json
 import random
 import time
-
 import requests
+
 import streamlit as st
 
 
@@ -116,18 +116,22 @@ defaults = {
     "custom_subject": "",
     "level": "WAEC",
     "language": "English",
+
     "xp": 0,
     "questions_answered": 0,
     "correct_answers": 0,
+
     "quiz_questions": [],
     "quiz_index": 0,
     "quiz_score": 0,
+
     "exam_questions": [],
     "exam_index": 0,
     "exam_score": 0,
     "exam_started": False,
     "exam_start_time": 0.0,
 }
+
 
 for key, value in defaults.items():
     if key not in st.session_state:
@@ -142,16 +146,14 @@ def backend_is_available():
     try:
         response = requests.get(
             f"{BACKEND_URL}/health",
-            timeout=15,
+            timeout=5,
         )
 
-        return (
-            response.status_code == 200
-            and response.json().get("status") == "healthy"
-        )
+        return response.status_code == 200
 
-    except Exception:
+    except requests.RequestException:
         return False
+
 
 # =========================================================
 # HELPER FUNCTIONS
@@ -179,6 +181,7 @@ def record_answer(correct):
     if correct:
         st.session_state.correct_answers += 1
         add_xp(10)
+
     else:
         add_xp(2)
 
@@ -200,6 +203,7 @@ def get_accuracy():
 # =========================================================
 
 def ask_ai(user_message):
+
     payload = {
         "message": user_message,
         "subject": get_selected_subject(),
@@ -208,6 +212,7 @@ def ask_ai(user_message):
     }
 
     try:
+
         response = requests.post(
             f"{BACKEND_URL}/api/tutor",
             json=payload,
@@ -215,6 +220,7 @@ def ask_ai(user_message):
         )
 
         if response.status_code != 200:
+
             return (
                 "❌ **Backend error**\n\n"
                 f"HTTP status: `{response.status_code}`"
@@ -223,6 +229,7 @@ def ask_ai(user_message):
         data = response.json()
 
         if data.get("success"):
+
             return data.get(
                 "answer",
                 "The AI returned an empty answer.",
@@ -239,18 +246,24 @@ def ask_ai(user_message):
         )
 
     except requests.exceptions.ConnectionError:
+
         return (
-            "❌ **Backend connection failed.**\n\n"
-            "Please make sure the backend is running or available on Render."
+            "❌ **Backend is not running.**\n\n"
+            "Please start the FastAPI backend with:\n\n"
+            "```powershell\n"
+            "uvicorn backend.main:app --reload\n"
+            "```"
         )
 
     except requests.exceptions.Timeout:
+
         return (
             "⏳ **The AI took too long to respond.**\n\n"
             "Please try again."
         )
 
     except Exception as error:
+
         return (
             "❌ **Connection error**\n\n"
             f"`{type(error).__name__}: {error}`"
@@ -307,6 +320,7 @@ Rules:
     }
 
     try:
+
         response = requests.post(
             f"{BACKEND_URL}/api/tutor",
             json=payload,
@@ -314,15 +328,20 @@ Rules:
         )
 
         if response.status_code != 200:
+
             st.error(
                 f"❌ Backend returned HTTP {response.status_code}."
             )
+
             return []
 
         result = response.json()
 
         if not result.get("success"):
-            st.error("❌ Backend AI error:")
+
+            st.error(
+                "❌ Backend AI error:"
+            )
 
             st.code(
                 result.get(
@@ -336,31 +355,46 @@ Rules:
         raw = result.get("answer", "")
 
         if not raw:
+
             st.error(
                 "❌ The backend returned an empty response."
             )
+
             return []
 
         raw = raw.strip()
 
         # Remove markdown code fences if necessary
         if raw.startswith("```"):
-            raw = raw.replace("```json", "")
-            raw = raw.replace("```", "")
+
+            raw = raw.replace(
+                "```json",
+                "",
+            )
+
+            raw = raw.replace(
+                "```",
+                "",
+            )
+
             raw = raw.strip()
 
-        # Try to locate JSON array
+        # Try to locate JSON array if the AI added extra text
         if "[" in raw and "]" in raw:
+
             start = raw.find("[")
             end = raw.rfind("]") + 1
+
             raw = raw[start:end]
 
         data = json.loads(raw)
 
         if not isinstance(data, list):
+
             st.error(
                 "❌ The AI response was not a question list."
             )
+
             return []
 
         cleaned = []
@@ -403,9 +437,11 @@ Rules:
             )
 
         if not cleaned:
+
             st.error(
                 "❌ None of the generated questions passed validation."
             )
+
             return []
 
         return cleaned
@@ -421,6 +457,7 @@ Rules:
         )
 
         with st.expander("🔧 Developer Debug"):
+
             st.code(raw)
 
         return []
@@ -428,7 +465,11 @@ Rules:
     except requests.exceptions.ConnectionError:
 
         st.error(
-            "❌ Backend connection failed."
+            "❌ Backend is not running."
+        )
+
+        st.code(
+            "uvicorn backend.main:app --reload"
         )
 
         return []
@@ -517,27 +558,30 @@ with st.sidebar:
     st.markdown("---")
 
     st.markdown(
-        f"""
-        <div class="xp">
-            ⭐ XP: {st.session_state.xp}
-        </div>
-        """,
+        f"<div class='xp'>⭐ XP: "
+        f"{st.session_state.xp}</div>",
         unsafe_allow_html=True,
     )
 
     st.write(
         "Questions answered: "
-        + str(st.session_state.questions_answered)
+        + str(
+            st.session_state.questions_answered
+        )
     )
 
     st.write(
         "Correct answers: "
-        + str(st.session_state.correct_answers)
+        + str(
+            st.session_state.correct_answers
+        )
     )
 
     st.write(
         "Accuracy: "
-        + str(get_accuracy())
+        + str(
+            get_accuracy()
+        )
         + "%"
     )
 
@@ -549,17 +593,25 @@ with st.sidebar:
     ):
 
         st.session_state.xp = 0
+
         st.session_state.questions_answered = 0
+
         st.session_state.correct_answers = 0
 
         st.session_state.quiz_questions = []
+
         st.session_state.quiz_index = 0
+
         st.session_state.quiz_score = 0
 
         st.session_state.exam_questions = []
+
         st.session_state.exam_index = 0
+
         st.session_state.exam_score = 0
+
         st.session_state.exam_started = False
+
         st.session_state.exam_start_time = 0.0
 
         st.session_state.messages = []
@@ -571,17 +623,18 @@ with st.sidebar:
 # MAIN HEADER
 # =========================================================
 
-st.title("🎓 HIZQEEL MULTI_TUTOR")
-
-st.subheader(
-    "Your AI-powered personal study companion"
+st.markdown(
+    """
+    <div class='hero'>
+        <h1>🎓 HIZQEEL MULTI_TUTOR</h1>
+        <p>
+            Your AI-powered study assistant for WAEC,
+            NECO and JAMB.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
-
-st.info(
-    "📚 Learn smarter • 🧠 Practise better • 🎯 Prepare with confidence"
-)
-
-st.markdown("---")
 
 
 # =========================================================
@@ -598,8 +651,9 @@ if backend_is_available():
 else:
 
     st.warning(
-        "🟠 AI Backend is currently unavailable. "
-        "Please check the Render backend."
+        "🟠 AI Backend is not running. "
+        "Start FastAPI with "
+        "`uvicorn backend.main:app --reload`."
     )
 
 
@@ -610,22 +664,26 @@ else:
 col1, col2, col3 = st.columns(3)
 
 with col1:
+
     st.metric(
         "⭐ XP",
         st.session_state.xp,
     )
 
 with col2:
+
     st.metric(
         "✅ Correct",
         st.session_state.correct_answers,
     )
 
 with col3:
+
     st.metric(
         "📊 Accuracy",
         f"{get_accuracy()}%",
     )
+
 
 st.markdown("---")
 
@@ -812,7 +870,9 @@ elif st.session_state.mode == "Practice Quiz":
                 )
 
                 st.session_state.quiz_questions = questions
+
                 st.session_state.quiz_index = 0
+
                 st.session_state.quiz_score = 0
 
                 st.rerun()
@@ -826,6 +886,7 @@ elif st.session_state.mode == "Practice Quiz":
     else:
 
         questions = st.session_state.quiz_questions
+
         index = st.session_state.quiz_index
 
         if index < len(questions):
@@ -897,6 +958,7 @@ elif st.session_state.mode == "Practice Quiz":
         else:
 
             score = st.session_state.quiz_score
+
             total = len(questions)
 
             percentage = round(
@@ -943,7 +1005,9 @@ elif st.session_state.mode == "Practice Quiz":
             ):
 
                 st.session_state.quiz_questions = []
+
                 st.session_state.quiz_index = 0
+
                 st.session_state.quiz_score = 0
 
                 st.rerun()
@@ -990,9 +1054,13 @@ elif st.session_state.mode == "Mock Exam":
                 )
 
                 st.session_state.exam_questions = questions
+
                 st.session_state.exam_index = 0
+
                 st.session_state.exam_score = 0
+
                 st.session_state.exam_started = True
+
                 st.session_state.exam_start_time = time.time()
 
                 st.rerun()
@@ -1006,6 +1074,7 @@ elif st.session_state.mode == "Mock Exam":
     else:
 
         questions = st.session_state.exam_questions
+
         index = st.session_state.exam_index
 
         if index < len(questions):
@@ -1021,10 +1090,12 @@ elif st.session_state.mode == "Mock Exam":
 
             remaining = max(
                 0,
-                total_seconds - int(elapsed),
+                total_seconds
+                - int(elapsed),
             )
 
             minutes = remaining // 60
+
             seconds = remaining % 60
 
             st.info(
@@ -1086,6 +1157,7 @@ elif st.session_state.mode == "Mock Exam":
         else:
 
             score = st.session_state.exam_score
+
             total = len(questions)
 
             percentage = round(
@@ -1135,9 +1207,13 @@ elif st.session_state.mode == "Mock Exam":
             ):
 
                 st.session_state.exam_questions = []
+
                 st.session_state.exam_index = 0
+
                 st.session_state.exam_score = 0
+
                 st.session_state.exam_started = False
+
                 st.session_state.exam_start_time = 0.0
 
                 st.rerun()
