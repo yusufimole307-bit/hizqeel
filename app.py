@@ -12,7 +12,7 @@ import streamlit as st
 
 APP_NAME = "HIZQEEL MULTI_TUTOR"
 
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = "https://hizqeel-multi-tutor-appl.onrender.com"
 
 SUBJECTS = [
     "English Language",
